@@ -77,7 +77,7 @@ def eliminate(values):
     for box in solved_values:
         digit = values[box]
         for peer in peers[box]:
-            values[peer] = values[peer].replace(digit, '')
+            assign_value(values, peer, values[peer].replace(digit, ''))
     return values
 
 
@@ -91,7 +91,7 @@ def only_choice(values):
         for digit in '123456789':
             dplaces = [box for box in unit if digit in values[box]]
             if len(dplaces) == 1:
-                values[dplaces[0]] = digit
+                assign_value(values, dplaces[0], digit)
     return values
 
 
@@ -120,12 +120,11 @@ def reduce_puzzle(values):
     """
     stalled = False
     while not stalled:
-        solved_values_before = len([box for box in values.keys() if len(values[box]) == 1])
-        values = eliminate(values)
-        values = only_choice(values)
-        values = naked_twins(values)
-        solved_values_after = len([box for box in values.keys() if len(values[box]) == 1])
-        stalled = solved_values_before == solved_values_after
+        values_before = values.copy()
+        eliminate(values)
+        naked_twins(values)
+        only_choice(values)
+        stalled = values_before == values
         if len([box for box in values.keys() if len(values[box]) == 0]):
             return False
     return values
@@ -134,7 +133,7 @@ def reduce_puzzle(values):
 def search(values):
     """Using depth-first search and propagation, try all possible values."""
     # First, reduce the puzzle using the previous function
-    values = reduce_puzzle(values)
+    reduce_puzzle(values)
     if values is False:
         return False  # Failed earlier
     if all(len(values[s]) == 1 for s in boxes):
