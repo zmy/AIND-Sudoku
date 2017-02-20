@@ -25,8 +25,9 @@ def assign_value(values, box, value):
     Please use this function to update your values dictionary!
     Assigns a value to a given box. If it updates the board record it.
     """
+    changed = box not in values or values[box] != value
     values[box] = value
-    if len(value) == 1:
+    if changed and len(value) <= 1:
         assignments.append(values.copy())
     return values
 
@@ -105,9 +106,22 @@ def naked_twins(values):
     Returns:
         the values dictionary with the naked twins eliminated from peers.
     """
+    for unit in unitlist:
+        d_boxes = [box for box in unit if len(values[box]) == 2]
+        n = len(d_boxes)
+        # Find all instances of naked twins
+        for i in range(n):
+            box_i = d_boxes[i]
+            for j in range(i + 1, n):
+                box_j = d_boxes[j]
+                if values[box_i] == values[box_j]:
+                    # Eliminate the naked twins as possibilities for their peers
+                    d0 = values[box_i][0]
+                    d1 = values[box_i][1]
+                    for box in unit:
+                        if box != box_i and box != box_j:
+                            assign_value(values, box, values[box].replace(d0, "").replace(d1, ""))
     return values
-    # Find all instances of naked twins
-    # Eliminate the naked twins as possibilities for their peers
 
 
 def reduce_puzzle(values):
@@ -159,6 +173,7 @@ def solve(grid):
     Returns:
         The dictionary representation of the final sudoku grid. False if no solution exists.
     """
+    return search(grid_values(grid))
 
 
 if __name__ == '__main__':
