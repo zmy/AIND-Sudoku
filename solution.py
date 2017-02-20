@@ -12,7 +12,8 @@ boxes = cross(ROWS, COLS)
 row_units = [cross(r, COLS) for r in ROWS]
 column_units = [cross(ROWS, c) for c in COLS]
 square_units = [cross(rs, cs) for rs in ('ABC', 'DEF', 'GHI') for cs in ('123', '456', '789')]
-unitlist = row_units + column_units + square_units
+diagonal_units = [[ROWS[i] + COLS[i] for i in range(9)], [ROWS[i] + COLS[8 - i] for i in range(9)]]
+unitlist = row_units + column_units + square_units + diagonal_units
 units = dict((s, [u for u in unitlist if s in u]) for s in boxes)
 peers = dict((s, set(sum(units[s], [])) - {s}) for s in boxes)
 
